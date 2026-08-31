@@ -6,7 +6,7 @@
 
 **Student:** Jesse Trueba · **Course:** CEN 5064 Software Design, Fall 2026 · **Partner:** @esway001
 
-## Project (approval paragraph — write this by Sun Aug 30)
+## Project 
 
 My project will be a personal finance advisor web application designed to help users better understand and manage their money. The system will allow users to record and categorize income and expenses, create monthly budgets and compare their spending against those budgets, set savings goals and track their progress, and view a financial dashboard that summarizes their overall financial activity through balances, spending categories, and other useful information. The goal of the project is to provide a simple and organized way for users to monitor their finances while demonstrating a clear software architecture and well-designed separation between the user interface, business logic, domain objects, and data storage.
 
@@ -24,10 +24,10 @@ instructor will follow it literally on conference days.]
 
 | Tier | Responsibilities in THIS system |
 |------|--------------------------------|
-| Presentation | [what your UI layer does] |
-| Service | [what your use-case/orchestration layer does] |
-| Domain | [your entities and business rules] |
-| Data | [how and where data is stored] |
+| Presentation | Displays the financial dashboard and forms for entering transactions, budgets, and savings goals. Collects user input and shows results returned by the Service tier. Likely modules: DashboardPage, TransactionForm, BudgetGoalPage. |
+| Service | Coordinates the main use cases of the application, such as adding a transaction, creating a budget, and updating a savings goal. It connects the Presentation tier with the Domain and Data tiers. Likely modules: TransactionService, BudgetService, SavingsGoalService. |
+| Domain | Contains the main financial entities and business rules. This includes representing transactions, comparing spending against a budget, and calculating progress toward a savings goal. Likely classes: Transaction, Budget, SavingsGoal. |
+| Data | Handles saving and retrieving transactions, budgets, and savings goals from the application's single data store. The rest of the system should not need to know how the data is physically stored. Likely modules: TransactionRepository, BudgetRepository, SavingsGoalRepository. |
 
 ### C4 — Context & Container (Session 3 studio)
 
