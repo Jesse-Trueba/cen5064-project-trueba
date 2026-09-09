@@ -32,20 +32,23 @@ instructor will follow it literally on conference days.]
 ### C4 — Context & Container (Session 3 studio)
 
 ```mermaid
-%% Replace this placeholder with YOUR system's context diagram.
 flowchart TB
-    user([User]) -->|uses| system[Your System]
-    system -->|stores data in| db[(Database)]
+    user([User]) -->|manages personal finances with| system[Personal Finance Advisor]
 ```
 
 ```mermaid
-%% Container view: your containers should match the tier table above.
 flowchart TB
-    subgraph YourSystem [Your System]
-        ui[Web UI / CLI<br/>Presentation] --> api[Application / Service]
-        api --> domain[Domain Model]
-        domain --> db[(Database<br/>Data tier)]
+    user([User])
+
+    subgraph FinanceAdvisor [Personal Finance Advisor]
+        ui[Web User Interface<br/>Presentation]
+        app[Finance Advisor Application<br/>Service + Domain]
+        db[(Financial Data Store<br/>Data)]
     end
+
+    user -->|enters transactions, budgets, and savings goals| ui
+    ui -->|sends requests and displays results| app
+    app -->|saves and retrieves financial data| db
 ```
 
 ### UML — Class & Sequence (Session 3 studio)
