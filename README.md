@@ -54,28 +54,62 @@ flowchart TB
 ### UML — Class & Sequence (Session 3 studio)
 
 ```mermaid
-%% Class diagram: your 3–4 core domain classes.
 classDiagram
-    class ExampleEntity {
-        -id: Long
-        -name: String
-        +doSomething()
+    class Transaction {
+        -id: String
+        -description: String
+        -amount: double
+        -date: Date
+        -type: String
+        +isExpense() boolean
     }
+
+    class Category {
+        -name: String
+        -type: String
+    }
+
+    class Budget {
+        -id: String
+        -monthlyLimit: double
+        -month: String
+        +remainingAmount(totalSpent: double) double
+        +isExceeded(totalSpent: double) boolean
+    }
+
+    class SavingsGoal {
+        -id: String
+        -name: String
+        -targetAmount: double
+        -currentAmount: double
+        -targetDate: Date
+        +progressPercent() double
+        +remainingAmount() double
+    }
+
+    Transaction "*" --> "1" Category : categorized as
+    Budget "*" --> "1" Category : limits
 ```
 
 ```mermaid
-%% Sequence diagram: ONE core use case, end to end.
 sequenceDiagram
     actor U as User
-    participant UI
-    participant S as Service
-    participant D as Data
-    U->>UI: action
-    UI->>S: request
-    S->>D: save/load
-    D-->>S: result
-    S-->>UI: response
-    UI-->>U: confirmation
+    participant UI as Dashboard
+    participant S as BudgetService
+    participant TR as TransactionRepository
+    participant BR as BudgetRepository
+    participant B as Budget
+
+    U->>UI: view budget status
+    UI->>S: getBudgetStatus(category, month)
+    S->>TR: findExpenses(category, month)
+    TR-->>S: transactions
+    S->>BR: findBudget(category, month)
+    BR-->>S: budget
+    S->>B: compare spending to budget
+    B-->>S: remaining amount / exceeded status
+    S-->>UI: budget status
+    UI-->>U: display spending vs. budget
 ```
 
 ## Architecture Decision Records
