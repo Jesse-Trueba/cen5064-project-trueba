@@ -126,3 +126,5 @@ A one-line note per week keeps your commit story readable:
 
 - Week 1 (Aug 24): repo created, three ideas drafted
 - Week 2 (Aug 31): ...
+
+branch for issue 1
