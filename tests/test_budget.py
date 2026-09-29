@@ -38,11 +38,9 @@ def test_zero_budget():
     budget = Budget(id=1, monthly_limit=Decimal("0.00"), month="2026-05")
     assert budget.monthly_limit == Decimal("0.00")
 
-    # Zero spending against zero budget
     assert budget.calculate_remaining(Decimal("0.00")) == Decimal("0.00")
     assert budget.is_exceeded(Decimal("0.00")) is False
 
-    # Any positive spending exceeds a zero budget
     assert budget.calculate_remaining(Decimal("10.00")) == Decimal("-10.00")
     assert budget.is_exceeded(Decimal("10.00")) is True
 

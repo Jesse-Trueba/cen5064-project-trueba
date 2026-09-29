@@ -32,11 +32,13 @@ class Budget:
         return self._month
 
     def calculate_remaining(self, total_spending: Decimal | int | str) -> Decimal:
+        """Return the amount remaining in the budget after spending."""
         spending = self._coerce_monetary_value(total_spending, "Total spending")
         self._validate_spending(spending)
         return self._monthly_limit - spending
 
     def is_exceeded(self, total_spending: Decimal | int | str) -> bool:
+        """Return True when spending is greater than the monthly limit."""
         spending = self._coerce_monetary_value(total_spending, "Total spending")
         self._validate_spending(spending)
         return spending > self._monthly_limit
