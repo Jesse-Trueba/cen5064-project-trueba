@@ -15,7 +15,7 @@ class Budget:
         self._monthly_limit = self._coerce_monetary_value(
             monthly_limit, "Monthly limit"
         )
-        if self._monthly_limit < Decimal("0"):
+        if self._monthly_limit < Decimal(0):
             raise ValueError("Monthly limit cannot be negative.")
         self._month = month
 
@@ -57,5 +57,5 @@ class Budget:
 
     @staticmethod
     def _validate_spending(spending: Decimal) -> None:
-        if spending < Decimal("0"):
+        if spending < Decimal(0):
             raise ValueError("Total spending cannot be negative.")

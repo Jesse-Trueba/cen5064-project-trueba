@@ -1,4 +1,5 @@
 # Personal Finance Advisor
+[![CI](https://github.com/Jesse-Trueba/cen5064-project-trueba/actions/workflows/ci.yml/badge.svg)](https://github.com/Jesse-Trueba/cen5064-project-trueba/actions/workflows/ci.yml)
 
 <!-- CI badge: after Session 4, replace ORG/REPO and the workflow filename, then uncomment:
 ![CI](https://github.com/ORG/REPO/actions/workflows/ci.yml/badge.svg)
