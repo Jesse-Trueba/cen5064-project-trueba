@@ -50,11 +50,11 @@ The program will save the budget, retrieve it from storage, calculate the remain
 ### Tier breakdown (Session 2 studio)
 
 | Tier | Responsibilities in THIS system |
-|------|--------------------------------|
-| Presentation | Displays the financial dashboard and forms for entering transactions, budgets, and savings goals. Collects user input and shows results returned by the Service tier. Likely modules: DashboardPage, TransactionForm, BudgetGoalPage. |
-| Service | Coordinates the main use cases of the application, such as adding a transaction, creating a budget, and updating a savings goal. It connects the Presentation tier with the Domain and Data tiers. Likely modules: TransactionService, BudgetService, SavingsGoalService. |
-| Domain | Contains the main financial entities and business rules. This includes representing transactions, comparing spending against a budget, and calculating progress toward a savings goal. Likely classes: Transaction, Budget, SavingsGoal. |
-| Data | Handles saving and retrieving transactions, budgets, and savings goals from the application's single data store. The rest of the system should not need to know how the data is physically stored. Likely modules: TransactionRepository, BudgetRepository, SavingsGoalRepository. |
+| --- | --- |
+| Presentation | Collects budget information from the user and displays budget status through `presentation/budget_cli.py`. |
+| Service | `BudgetService` coordinates budget creation and budget-status use cases between the Presentation, Domain, and Data tiers. |
+| Domain | `Budget` contains the financial business rules for calculating the remaining budget and determining whether spending exceeds the monthly limit. |
+| Data | `BudgetRepository` saves and retrieves budget information using JSON storage in `data/budgets.json`. |
 
 ### C4 — Context & Container (Session 3 studio)
 
@@ -68,75 +68,94 @@ flowchart TB
     user([User])
 
     subgraph FinanceAdvisor [Personal Finance Advisor]
-        ui[Web User Interface<br/>Presentation]
-        app[Finance Advisor Application<br/>Service + Domain]
-        db[(Financial Data Store<br/>Data)]
+        presentation[Budget CLI<br/>Presentation Tier]
+        service[BudgetService<br/>Service Tier]
+        domain[Budget<br/>Domain Tier]
+        repository[BudgetRepository<br/>Data Tier]
+        json[(budgets.json<br/>JSON Storage)]
     end
 
-    user -->|enters transactions, budgets, and savings goals| ui
-    ui -->|sends requests and displays results| app
-    app -->|saves and retrieves financial data| db
+    user -->|enters budget and spending information| presentation
+    presentation -->|creates budget and requests status| service
+    service -->|creates and evaluates| domain
+    service -->|saves and retrieves budgets| repository
+    repository -->|reads and writes| json
+    repository -->|reconstructs Budget objects| domain
 ```
 
 ### UML — Class & Sequence (Session 3 studio)
 
 ```mermaid
 classDiagram
+    class Budget {
+        -id
+        -monthly_limit: Decimal
+        -month: str
+        +calculate_remaining(total_spending) Decimal
+        +is_exceeded(total_spending) bool
+    }
+
     class Transaction {
-        -id: String
-        -description: String
-        -amount: double
-        -date: Date
-        -type: String
-        +isExpense() boolean
+        -id
+        -description
+        -amount
+        -date
+        -type
+        +isExpense()
     }
 
     class Category {
-        -name: String
-        -type: String
-    }
-
-    class Budget {
-        -id: String
-        -monthlyLimit: double
-        -month: String
-        +remainingAmount(totalSpent: double) double
-        +isExceeded(totalSpent: double) boolean
+        -name
+        -type
     }
 
     class SavingsGoal {
-        -id: String
-        -name: String
-        -targetAmount: double
-        -currentAmount: double
-        -targetDate: Date
-        +progressPercent() double
-        +remainingAmount() double
+        -id
+        -name
+        -target_amount
+        -current_amount
+        -target_date
+        +progressPercent()
+        +remainingAmount()
     }
 
     Transaction "*" --> "1" Category : categorized as
-    Budget "*" --> "1" Category : limits
+
+    note for Budget "Implemented at midterm"
+    note for Transaction "Planned for second half"
+    note for Category "Planned for second half"
+    note for SavingsGoal "Planned for second half"
 ```
 
 ```mermaid
 sequenceDiagram
     actor U as User
-    participant UI as Dashboard
+    participant UI as Budget CLI
     participant S as BudgetService
-    participant TR as TransactionRepository
-    participant BR as BudgetRepository
+    participant R as BudgetRepository
     participant B as Budget
+    participant J as budgets.json
 
-    U->>UI: view budget status
-    UI->>S: getBudgetStatus(category, month)
-    S->>TR: findExpenses(category, month)
-    TR-->>S: transactions
-    S->>BR: findBudget(category, month)
-    BR-->>S: budget
-    S->>B: compare spending to budget
-    B-->>S: remaining amount / exceeded status
-    S-->>UI: budget status
-    UI-->>U: display spending vs. budget
+    U->>UI: Enter budget ID, month, limit, and spending
+    UI->>S: create_budget(id, limit, month)
+    S->>B: Create Budget
+    S->>R: save(budget)
+    R->>J: Write budget data
+
+    UI->>S: get_budget_status(id, spending)
+    S->>R: get_by_id(id)
+    R->>J: Read budget data
+    J-->>R: Stored budget
+    R->>B: Reconstruct Budget
+    R-->>S: Budget
+
+    S->>B: calculate_remaining(spending)
+    B-->>S: Remaining amount
+    S->>B: is_exceeded(spending)
+    B-->>S: Exceeded status
+
+    S-->>UI: Budget status
+    UI-->>U: Display results
 ```
 
 ## Architecture Decision Records
