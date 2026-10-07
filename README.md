@@ -14,6 +14,7 @@ My project will be a personal finance advisor web application designed to help u
 ## How to Run
 
 ### Requirements
+
 - Python 3.12 or newer
 
 ### Install dependencies
@@ -21,6 +22,28 @@ My project will be a personal finance advisor web application designed to help u
 ```bash
 python -m pip install -r requirements.txt
 python -m pip install pytest ruff
+```
+
+### Run the tests
+
+```bash
+python -m pytest
+```
+
+### Run the budget working slice
+
+```bash
+python -m presentation.budget_cli
+```
+
+When prompted, enter:
+
+- a budget ID
+- a month in YYYY-MM format
+- a monthly budget limit
+- a total spending amount
+
+The program will save the budget, retrieve it from storage, calculate the remaining amount, determine whether the budget has been exceeded, and display the result.
 
 ## Architecture
 
