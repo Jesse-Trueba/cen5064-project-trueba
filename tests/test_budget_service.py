@@ -58,3 +58,24 @@ def test_budget_not_found(tmp_path):
             budget_id="missing",
             total_spending=Decimal("100.00"),
         )
+
+def test_budget_working_slice_accepts_string_values(tmp_path):
+    storage_file = tmp_path / "budgets.json"
+    repository = BudgetRepository(str(storage_file))
+    service = BudgetService(repository)
+
+    service.create_budget(
+        budget_id="budget-3",
+        monthly_limit="500.00",
+        month="2026-10",
+    )
+
+    status = service.get_budget_status(
+        budget_id="budget-3",
+        total_spending="350.00",
+    )
+
+    assert status["monthly_limit"] == Decimal("500.00")
+    assert status["total_spending"] == Decimal("350.00")
+    assert status["remaining"] == Decimal("150.00")
+    assert status["exceeded"] is False

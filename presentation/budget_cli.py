@@ -4,17 +4,20 @@ from service.budget_service import BudgetService
 
 
 def main() -> None:
+    """Run the command-line budget workflow."""
     repository = BudgetRepository()
     service = BudgetService(repository)
 
     print("Personal Finance Advisor")
     print("------------------------")
 
+    # Collect the budget information from the user.
     budget_id = input("Budget ID: ").strip()
     month = input("Month (YYYY-MM): ").strip()
     monthly_limit = input("Monthly budget limit: $").strip()
     total_spending = input("Total spending: $").strip()
 
+    # Save the budget and calculate its current status.
     service.create_budget(
         budget_id=budget_id,
         monthly_limit=monthly_limit,
@@ -26,8 +29,8 @@ def main() -> None:
         total_spending=total_spending,
     )
 
-    print()
-    print("Budget Status")
+    # Display the result returned by the service layer.
+    print("\nBudget Status")
     print("-------------")
     print(f"Month: {status['month']}")
     print(f"Budget limit: ${status['monthly_limit']:.2f}")

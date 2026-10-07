@@ -34,12 +34,14 @@ class BudgetService:
 
         if budget is None:
             raise ValueError("Budget not found.")
+        
+        spending = Decimal(total_spending)
 
         return {
             "id": budget.id,
             "month": budget.month,
             "monthly_limit": budget.monthly_limit,
-            "total_spending": Decimal(total_spending),
-            "remaining": budget.calculate_remaining(total_spending),
-            "exceeded": budget.is_exceeded(total_spending),
+            "total_spending": spending,
+            "remaining": budget.calculate_remaining(spending),
+            "exceeded": budget.is_exceeded(spending),
         }
