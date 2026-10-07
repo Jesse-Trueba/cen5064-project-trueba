@@ -11,13 +11,39 @@
 
 My project will be a personal finance advisor web application designed to help users better understand and manage their money. The system will allow users to record and categorize income and expenses, create monthly budgets and compare their spending against those budgets, set savings goals and track their progress, and view a financial dashboard that summarizes their overall financial activity through balances, spending categories, and other useful information. The goal of the project is to provide a simple and organized way for users to monitor their finances while demonstrating a clear software architecture and well-designed separation between the user interface, business logic, domain objects, and data storage.
 
-## How to run
+## How to Run
 
+### Requirements
+
+- Python 3.12 or newer
+
+### Install dependencies
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install pytest ruff
 ```
-[Exact commands to build and run your system from a clean clone.
-Update this every time the steps change — your partner and your
-instructor will follow it literally on conference days.]
+
+### Run the tests
+
+```bash
+python -m pytest
 ```
+
+### Run the budget working slice
+
+```bash
+python -m presentation.budget_cli
+```
+
+When prompted, enter:
+
+- a budget ID
+- a month in YYYY-MM format
+- a monthly budget limit
+- a total spending amount
+
+The program will save the budget, retrieve it from storage, calculate the remaining amount, determine whether the budget has been exceeded, and display the result.
 
 ## Architecture
 
