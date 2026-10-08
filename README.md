@@ -166,9 +166,41 @@ Decisions live in [`docs/adr/`](docs/adr/). Start with ADR-001 in Session 4.
 |---|----------|--------|
 | [001](docs/adr/adr-001.md) | [What I am building and why] | [proposed] |
 
-## Weekly log (optional but recommended)
+## Weekly Log
 
-A one-line note per week keeps your commit story readable:
+### Week 1 — Aug. 24–30
+- Set up the GitHub repository from the course template.
+- Defined the Personal Finance Advisor project scope and core features.
+- Established the initial four-tier architecture.
 
-- Week 1 (Aug 24): repo created, three ideas drafted
-- Week 2 (Aug 31): ...
+### Week 2 — Aug. 31–Sept. 6
+- Refined the README and tier breakdown.
+- Identified Presentation, Service, Domain, and Data responsibilities.
+- Continued planning the project's core classes and features.
+
+### Week 3 — Sept. 7–13
+- Refined project requirements and use cases.
+- Prepared the architecture for the upcoming C4 and UML design work.
+
+### Week 4 — Sept. 14–20
+- Added the C4 Context and Container diagrams.
+- Added the UML class diagram.
+- Added a sequence diagram showing a core system workflow.
+
+### Week 5 — Sept. 21–27
+- Began using the issue → branch → commit → pull request → review → merge workflow.
+- Created GitHub issues with acceptance criteria for the project's main features.
+- Participated in peer pull-request reviews.
+
+### Week 6 — Sept. 28–Oct. 4
+- Used the AI-assisted development workflow to implement the Budget domain logic.
+- Added automated tests for remaining-budget and exceeded-budget calculations.
+- Identified and corrected issues in AI-generated code through verification and peer review.
+
+### Week 7 — Oct. 5–11
+- Added and verified the Python CI workflow with Ruff and pytest.
+- Added two Architecture Decision Records (ADRs).
+- Created and updated the GitHub project board.
+- Implemented the end-to-end budget working slice through Presentation, Service, Domain, and Data tiers.
+- Added JSON persistence and working-slice tests.
+- Updated README run instructions and architecture diagrams for the midterm.
