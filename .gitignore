@@ -27,3 +27,4 @@ Thumbs.db
 .env
 *.local
 data/budgets.json
+data/finance.db

@@ -1,46 +1,101 @@
-import json
 from decimal import Decimal
-from pathlib import Path
 
+from data.database import get_connection, initialize_database
 from domain.budget import Budget
 
 
 class BudgetRepository:
-    """Stores and retrieves budgets using a JSON file."""
-
-    def __init__(self, file_path: str = "data/budgets.json") -> None:
-        self._file_path = Path(file_path)
+    def __init__(self, database_path=None):
+        self.database_path = database_path
+        initialize_database(self.database_path)
 
     def save(self, budget: Budget) -> None:
-        budgets = self._load_all()
+        monthly_limit_cents = int(budget.monthly_limit * 100)
 
-        budgets[str(budget.id)] = {
-            "id": budget.id,
-            "monthly_limit": str(budget.monthly_limit),
-            "month": budget.month,
-        }
+        with get_connection(self.database_path) as connection:
+            connection.execute(
+                """
+                DELETE FROM budgets
+                WHERE month = ? AND id != ?
+                """,
+                (budget.month, budget.id),
+            )
 
-        self._file_path.parent.mkdir(parents=True, exist_ok=True)
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO budgets (
+                    id,
+                    month,
+                    monthly_limit_cents
+                )
+                VALUES (?, ?, ?)
+                """,
+                (
+                    budget.id,
+                    budget.month,
+                    monthly_limit_cents,
+                ),
+            )
 
-        with self._file_path.open("w", encoding="utf-8") as file:
-            json.dump(budgets, file, indent=2)
+            connection.commit()
 
     def get_by_id(self, budget_id: str) -> Budget | None:
-        budgets = self._load_all()
-        stored_budget = budgets.get(str(budget_id))
+        with get_connection(self.database_path) as connection:
+            row = connection.execute(
+                """
+                SELECT id, month, monthly_limit_cents
+                FROM budgets
+                WHERE id = ?
+                """,
+                (budget_id,),
+            ).fetchone()
 
-        if stored_budget is None:
+        if row is None:
             return None
 
         return Budget(
-            id=stored_budget["id"],
-            monthly_limit=Decimal(stored_budget["monthly_limit"]),
-            month=stored_budget["month"],
+            row["id"],
+            Decimal(row["monthly_limit_cents"]) / Decimal(100),
+            row["month"],
         )
 
-    def _load_all(self) -> dict:
-        if not self._file_path.exists():
-            return {}
+    def get_by_month(self, month: str) -> Budget | None:
+        with get_connection(self.database_path) as connection:
+            row = connection.execute(
+                """
+                SELECT id, month, monthly_limit_cents
+                FROM budgets
+                WHERE month = ?
+                ORDER BY rowid DESC
+                LIMIT 1
+                """,
+                (month,),
+            ).fetchone()
 
-        with self._file_path.open("r", encoding="utf-8") as file:
-            return json.load(file)
+        if row is None:
+            return None
+
+        return Budget(
+            row["id"],
+            Decimal(row["monthly_limit_cents"]) / Decimal(100),
+            row["month"],
+        )
+
+    def get_all(self) -> list[Budget]:
+        with get_connection(self.database_path) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, month, monthly_limit_cents
+                FROM budgets
+                ORDER BY month DESC
+                """
+            ).fetchall()
+
+        return [
+            Budget(
+                row["id"],
+                Decimal(row["monthly_limit_cents"]) / Decimal(100),
+                row["month"],
+            )
+            for row in rows
+        ]
