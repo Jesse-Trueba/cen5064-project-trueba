@@ -15,20 +15,15 @@ class BudgetRepository:
         with get_connection(self.database_path) as connection:
             connection.execute(
                 """
-                DELETE FROM budgets
-                WHERE month = ? AND id != ?
-                """,
-                (budget.month, budget.id),
-            )
-
-            connection.execute(
-                """
-                INSERT OR REPLACE INTO budgets (
+                INSERT INTO budgets (
                     id,
                     month,
                     monthly_limit_cents
                 )
                 VALUES (?, ?, ?)
+                ON CONFLICT(month) DO UPDATE SET
+                    id = excluded.id,
+                    monthly_limit_cents = excluded.monthly_limit_cents
                 """,
                 (
                     budget.id,

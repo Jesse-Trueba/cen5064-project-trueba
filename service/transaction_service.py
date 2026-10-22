@@ -14,7 +14,7 @@ class TransactionService:
         transaction_date: str,
         description: str,
         category: str,
-        amount,
+        amount: str | int | Decimal,
         transaction_type: str,
     ) -> Transaction:
         transaction = Transaction(

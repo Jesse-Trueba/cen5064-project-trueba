@@ -37,5 +37,11 @@ def initialize_database(database_path=None) -> None:
             )
             """
         )
+        connection.execute(
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_budgets_month
+    ON budgets(month)
+    """
+)
 
         connection.commit()
