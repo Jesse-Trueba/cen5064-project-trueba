@@ -76,3 +76,32 @@ def test_transaction_rejects_unknown_category():
             amount=Decimal("20.00"),
             transaction_type="expense",
         )
+
+def test_transaction_rejects_empty_description():
+    with pytest.raises(
+        ValueError,
+        match="Description cannot be empty",
+    ):
+        Transaction(
+            id="6",
+            date="2026-10-23",
+            description="",
+            category="Groceries",
+            amount=Decimal("25.00"),
+            transaction_type="expense",
+        )
+
+
+def test_transaction_rejects_empty_category():
+    with pytest.raises(
+        ValueError,
+        match="Invalid expense category",
+    ):
+        Transaction(
+            id="7",
+            date="2026-10-23",
+            description="Publix",
+            category="",
+            amount=Decimal("25.00"),
+            transaction_type="expense",
+        )

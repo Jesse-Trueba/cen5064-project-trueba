@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
+# Allowed categories are defined in the Domain layer so transaction
+# categorization rules stay independent from the GUI or database.
 EXPENSE_CATEGORIES = {
     "Groceries",
     "Dining",
@@ -59,6 +61,7 @@ class Transaction:
         if transaction_type not in {"income", "expense"}:
             raise ValueError("Transaction type must be income or expense.")
 
+        # A category must be valid for the selected transaction type.
         if (
             transaction_type == "expense"
             and category not in EXPENSE_CATEGORIES
