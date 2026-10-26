@@ -1,12 +1,12 @@
 from decimal import Decimal
 from uuid import uuid4
 
-from data.transaction_repository import TransactionRepository
 from domain.transaction import Transaction
+from domain.transaction_repository_port import TransactionRepositoryPort
 
 
 class TransactionService:
-    def __init__(self, repository: TransactionRepository):
+    def __init__(self, repository: TransactionRepositoryPort):
         self.repository = repository
 
     def add_transaction(
@@ -33,10 +33,16 @@ class TransactionService:
     def get_all_transactions(self) -> list[Transaction]:
         return self.repository.get_all()
 
-    def get_transactions_for_month(self, month: str) -> list[Transaction]:
+    def get_transactions_for_month(
+        self,
+        month: str,
+    ) -> list[Transaction]:
         return self.repository.get_for_month(month)
 
-    def get_monthly_expense_total(self, month: str) -> Decimal:
+    def get_monthly_expense_total(
+        self,
+        month: str,
+    ) -> Decimal:
         transactions = self.repository.get_for_month(month)
 
         return sum(
@@ -48,7 +54,10 @@ class TransactionService:
             Decimal(0),
         )
 
-    def get_monthly_income_total(self, month: str) -> Decimal:
+    def get_monthly_income_total(
+        self,
+        month: str,
+    ) -> Decimal:
         transactions = self.repository.get_for_month(month)
 
         return sum(
