@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from decimal import InvalidOperation
 from tkinter import messagebox, ttk
 
+from config.app_config import AppConfig
 from data.budget_repository import BudgetRepository
 from data.transaction_repository import TransactionRepository
 from domain.transaction import EXPENSE_CATEGORIES, INCOME_CATEGORIES
@@ -19,8 +20,14 @@ class FinanceApp(tk.Tk):
         self.geometry("900x650")
         self.minsize(800, 550)
 
-        self.budget_repository = BudgetRepository()
-        self.transaction_repository = TransactionRepository()
+        self.config = AppConfig()
+
+        self.budget_repository = BudgetRepository(
+            self.config.database_path
+        )
+        self.transaction_repository = TransactionRepository(
+            self.config.database_path
+        )
 
         self.budget_service = BudgetService(
             self.budget_repository,

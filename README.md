@@ -13,37 +13,39 @@ My project will be a personal finance advisor web application designed to help u
 
 ## How to Run
 
-### Requirements
+1. Clone the repository and open a terminal in the project folder.
 
-- Python 3.12 or newer
+2. Create and activate a Python virtual environment.
 
-### Install dependencies
+   Windows:
 
-```bash
-python -m pip install -r requirements.txt
-python -m pip install pytest ruff
-```
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
 
-### Run the tests
+   macOS/Linux:
 
-```bash
-python -m pytest
-```
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
-### Run the budget working slice
+3. Install the project dependencies.
 
-```bash
-python -m presentation.budget_cli
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-When prompted, enter:
+4. Run the graphical application.
 
-- a budget ID
-- a month in YYYY-MM format
-- a monthly budget limit
-- a total spending amount
+   ```bash
+   python -m presentation.finance_gui
+   ```
 
-The program will save the budget, retrieve it from storage, calculate the remaining amount, determine whether the budget has been exceeded, and display the result.
+The application opens the Personal Finance Advisor graphical interface with Dashboard, Transactions, and Budget tabs.
+
+The previous `presentation.budget_cli` module is an older command-line interface and is not the primary way to run the application.
 
 ## Architecture
 
