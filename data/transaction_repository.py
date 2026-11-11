@@ -15,7 +15,7 @@ class TransactionRepository:
         with get_connection(self.database_path) as connection:
             connection.execute(
                 """
-                INSERT OR REPLACE INTO transactions (
+                INSERT INTO transactions (
                     id,
                     date,
                     description,
@@ -34,26 +34,43 @@ class TransactionRepository:
                     transaction.transaction_type,
                 ),
             )
-
             connection.commit()
 
     def get_all(self) -> list[Transaction]:
         with get_connection(self.database_path) as connection:
             rows = connection.execute(
                 """
-                SELECT id, date, description, category, amount_cents, type
+                SELECT
+                    id,
+                    date,
+                    description,
+                    category,
+                    amount_cents,
+                    type
                 FROM transactions
                 ORDER BY date DESC
                 """
             ).fetchall()
 
-        return [self._row_to_transaction(row) for row in rows]
+        return [
+            self._row_to_transaction(row)
+            for row in rows
+        ]
 
-    def get_for_month(self, month: str) -> list[Transaction]:
+    def get_for_month(
+        self,
+        month: str,
+    ) -> list[Transaction]:
         with get_connection(self.database_path) as connection:
             rows = connection.execute(
                 """
-                SELECT id, date, description, category, amount_cents, type
+                SELECT
+                    id,
+                    date,
+                    description,
+                    category,
+                    amount_cents,
+                    type
                 FROM transactions
                 WHERE date LIKE ?
                 ORDER BY date DESC
@@ -61,7 +78,45 @@ class TransactionRepository:
                 (f"{month}-%",),
             ).fetchall()
 
-        return [self._row_to_transaction(row) for row in rows]
+        return [
+            self._row_to_transaction(row)
+            for row in rows
+        ]
+
+    def delete(
+        self,
+        transaction_id: str,
+    ) -> None:
+        with get_connection(self.database_path) as connection:
+            connection.execute(
+                """
+                DELETE FROM transactions
+                WHERE id = ?
+                """,
+                (transaction_id,),
+            )
+            connection.commit()
+
+    def delete_many(
+        self,
+        transaction_ids: list[str],
+    ) -> None:
+        if not transaction_ids:
+            return
+
+        placeholders = ", ".join(
+            "?" for _ in transaction_ids
+        )
+
+        with get_connection(self.database_path) as connection:
+            connection.execute(
+                f"""
+                DELETE FROM transactions
+                WHERE id IN ({placeholders})
+                """,
+                transaction_ids,
+            )
+            connection.commit()
 
     @staticmethod
     def _row_to_transaction(row) -> Transaction:
@@ -70,6 +125,9 @@ class TransactionRepository:
             date=row["date"],
             description=row["description"],
             category=row["category"],
-            amount=Decimal(row["amount_cents"]) / Decimal(100),
+            amount=(
+                Decimal(row["amount_cents"])
+                / Decimal(100)
+            ),
             transaction_type=row["type"],
         )

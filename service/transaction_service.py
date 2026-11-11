@@ -29,6 +29,15 @@ class TransactionService:
         self.repository.save(transaction)
 
         return transaction
+    
+    def delete_transactions(
+        self,
+        transaction_ids: list[str],
+    ) -> None:
+        if not transaction_ids:
+            return
+
+        self.repository.delete_many(transaction_ids)
 
     def get_all_transactions(self) -> list[Transaction]:
         return self.repository.get_all()
