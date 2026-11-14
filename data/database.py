@@ -27,21 +27,34 @@ def initialize_database(database_path=None) -> None:
 
         connection.execute(
             """
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_budgets_month
+            ON budgets(month)
+            """
+        )
+
+        connection.execute(
+            """
             CREATE TABLE IF NOT EXISTS transactions (
                 id TEXT PRIMARY KEY,
                 date TEXT NOT NULL,
                 description TEXT NOT NULL,
                 category TEXT NOT NULL,
                 amount_cents INTEGER NOT NULL,
-                type TEXT NOT NULL CHECK (type IN ('income', 'expense'))
+                type TEXT NOT NULL
+                    CHECK (type IN ('income', 'expense'))
             )
             """
         )
+
         connection.execute(
-    """
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_budgets_month
-    ON budgets(month)
-    """
-)
+            """
+            CREATE TABLE IF NOT EXISTS savings_goals (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                target_amount_cents INTEGER NOT NULL,
+                current_amount_cents INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
 
         connection.commit()

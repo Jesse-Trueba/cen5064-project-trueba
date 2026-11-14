@@ -6,9 +6,11 @@ from tkinter import messagebox, ttk
 
 from config.app_config import AppConfig
 from data.budget_repository import BudgetRepository
+from data.savings_goal_repository import SavingsGoalRepository
 from data.transaction_repository import TransactionRepository
 from domain.transaction import EXPENSE_CATEGORIES, INCOME_CATEGORIES
 from service.budget_service import BudgetService
+from service.savings_goal_service import SavingsGoalService
 from service.transaction_service import TransactionService
 
 
@@ -16,7 +18,7 @@ class FinanceApp:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Personal Finance Advisor")
-        self.root.geometry("900x650")
+        self.root.geometry("900x700")
 
         self.config = AppConfig()
 
@@ -24,6 +26,9 @@ class FinanceApp:
             self.config.database_path
         )
         self.transaction_repository = TransactionRepository(
+            self.config.database_path
+        )
+        self.savings_goal_repository = SavingsGoalRepository(
             self.config.database_path
         )
 
@@ -34,6 +39,9 @@ class FinanceApp:
         self.transaction_service = TransactionService(
             self.transaction_repository
         )
+        self.savings_goal_service = SavingsGoalService(
+            self.savings_goal_repository
+        )
 
         now = datetime.now(UTC).astimezone()
         self.current_month = now.strftime("%Y-%m")
@@ -43,6 +51,7 @@ class FinanceApp:
         self.refresh_transactions()
         self.refresh_dashboard()
         self.refresh_chart()
+        self.refresh_savings_goals()
 
     def create_widgets(self) -> None:
         title = ttk.Label(
@@ -64,6 +73,7 @@ class FinanceApp:
         self.transactions_tab = ttk.Frame(self.notebook)
         self.budget_tab = ttk.Frame(self.notebook)
         self.chart_tab = ttk.Frame(self.notebook)
+        self.savings_tab = ttk.Frame(self.notebook)
 
         self.notebook.add(
             self.dashboard_tab,
@@ -81,11 +91,16 @@ class FinanceApp:
             self.chart_tab,
             text="Charts",
         )
+        self.notebook.add(
+            self.savings_tab,
+            text="Savings Goals",
+        )
 
         self.create_dashboard_tab()
         self.create_transactions_tab()
         self.create_budget_tab()
         self.create_chart_tab()
+        self.create_savings_tab()
 
     def create_dashboard_tab(self) -> None:
         frame = ttk.Frame(
@@ -572,6 +587,202 @@ class FinanceApp:
             pady=10,
         )
 
+    def create_savings_tab(self) -> None:
+        frame = ttk.Frame(
+            self.savings_tab,
+            padding=20,
+        )
+        frame.pack(
+            fill="both",
+            expand=True,
+        )
+
+        ttk.Label(
+            frame,
+            text="Savings Goals",
+            font=("Arial", 16, "bold"),
+        ).pack(pady=10)
+
+        create_frame = ttk.LabelFrame(
+            frame,
+            text="Create Goal",
+            padding=10,
+        )
+        create_frame.pack(
+            fill="x",
+            pady=5,
+        )
+
+        ttk.Label(
+            create_frame,
+            text="Goal Name:",
+        ).grid(
+            row=0,
+            column=0,
+            padx=5,
+            pady=5,
+            sticky="e",
+        )
+
+        self.savings_name_var = tk.StringVar()
+
+        ttk.Entry(
+            create_frame,
+            textvariable=self.savings_name_var,
+            width=25,
+        ).grid(
+            row=0,
+            column=1,
+            padx=5,
+            pady=5,
+        )
+
+        ttk.Label(
+            create_frame,
+            text="Target Amount:",
+        ).grid(
+            row=0,
+            column=2,
+            padx=5,
+            pady=5,
+            sticky="e",
+        )
+
+        self.savings_target_var = tk.StringVar()
+
+        ttk.Entry(
+            create_frame,
+            textvariable=self.savings_target_var,
+            width=15,
+        ).grid(
+            row=0,
+            column=3,
+            padx=5,
+            pady=5,
+        )
+
+        ttk.Button(
+            create_frame,
+            text="Create Goal",
+            command=self.create_savings_goal,
+        ).grid(
+            row=0,
+            column=4,
+            padx=10,
+            pady=5,
+        )
+
+        columns = (
+            "name",
+            "target",
+            "saved",
+            "remaining",
+            "progress",
+        )
+
+        self.savings_tree = ttk.Treeview(
+            frame,
+            columns=columns,
+            show="headings",
+            selectmode="browse",
+            height=10,
+        )
+
+        self.savings_tree.heading(
+            "name",
+            text="Goal",
+        )
+        self.savings_tree.heading(
+            "target",
+            text="Target",
+        )
+        self.savings_tree.heading(
+            "saved",
+            text="Saved",
+        )
+        self.savings_tree.heading(
+            "remaining",
+            text="Remaining",
+        )
+        self.savings_tree.heading(
+            "progress",
+            text="Progress",
+        )
+
+        self.savings_tree.column(
+            "name",
+            width=180,
+        )
+        self.savings_tree.column(
+            "target",
+            width=120,
+        )
+        self.savings_tree.column(
+            "saved",
+            width=120,
+        )
+        self.savings_tree.column(
+            "remaining",
+            width=120,
+        )
+        self.savings_tree.column(
+            "progress",
+            width=100,
+        )
+
+        self.savings_tree.pack(
+            fill="both",
+            expand=True,
+            pady=10,
+        )
+
+        contribution_frame = ttk.LabelFrame(
+            frame,
+            text="Add Contribution",
+            padding=10,
+        )
+        contribution_frame.pack(
+            fill="x",
+            pady=5,
+        )
+
+        ttk.Label(
+            contribution_frame,
+            text="Contribution Amount:",
+        ).pack(
+            side="left",
+            padx=5,
+        )
+
+        self.contribution_var = tk.StringVar()
+
+        ttk.Entry(
+            contribution_frame,
+            textvariable=self.contribution_var,
+            width=15,
+        ).pack(
+            side="left",
+            padx=5,
+        )
+
+        ttk.Button(
+            contribution_frame,
+            text="Add to Selected Goal",
+            command=self.add_savings_contribution,
+        ).pack(
+            side="left",
+            padx=10,
+        )
+
+        ttk.Button(
+            contribution_frame,
+            text="Refresh Goals",
+            command=self.refresh_savings_goals,
+        ).pack(
+            side="left",
+            padx=5,
+        )
+
     def update_category_options(self, _event=None) -> None:
         transaction_type = self.transaction_type_var.get()
 
@@ -596,7 +807,6 @@ class FinanceApp:
             )
 
             self.dashboard_month_var.set(month)
-
             self.refresh_dashboard()
 
             messagebox.showinfo(
@@ -704,6 +914,78 @@ class FinanceApp:
         ) as error:
             messagebox.showerror(
                 "Delete Error",
+                str(error),
+            )
+
+    def create_savings_goal(self) -> None:
+        try:
+            goal = self.savings_goal_service.create_goal(
+                name=self.savings_name_var.get().strip(),
+                target_amount=(
+                    self.savings_target_var.get().strip()
+                ),
+            )
+
+            self.savings_name_var.set("")
+            self.savings_target_var.set("")
+
+            self.refresh_savings_goals()
+
+            messagebox.showinfo(
+                "Savings Goal Created",
+                f"{goal.name} was created.",
+            )
+
+        except (
+            ValueError,
+            TypeError,
+            InvalidOperation,
+            sqlite3.Error,
+        ) as error:
+            messagebox.showerror(
+                "Savings Goal Error",
+                str(error),
+            )
+
+    def add_savings_contribution(self) -> None:
+        selected_items = self.savings_tree.selection()
+
+        if not selected_items:
+            messagebox.showwarning(
+                "No Goal Selected",
+                "Please select a savings goal first.",
+            )
+            return
+
+        goal_id = selected_items[0]
+
+        try:
+            goal = (
+                self.savings_goal_service.add_contribution(
+                    goal_id,
+                    self.contribution_var.get().strip(),
+                )
+            )
+
+            self.contribution_var.set("")
+            self.refresh_savings_goals()
+
+            messagebox.showinfo(
+                "Contribution Added",
+                (
+                    f"Contribution added to "
+                    f"{goal.name}."
+                ),
+            )
+
+        except (
+            ValueError,
+            TypeError,
+            InvalidOperation,
+            sqlite3.Error,
+        ) as error:
+            messagebox.showerror(
+                "Contribution Error",
                 str(error),
             )
 
@@ -849,7 +1131,9 @@ class FinanceApp:
                 continue
 
             if transaction.category not in category_totals:
-                category_totals[transaction.category] = Decimal(0)
+                category_totals[
+                    transaction.category
+                ] = Decimal(0)
 
             category_totals[
                 transaction.category
@@ -967,6 +1251,40 @@ class FinanceApp:
                 text=f"${total:.2f}",
                 anchor="w",
                 font=("Arial", 11),
+            )
+
+    def refresh_savings_goals(self) -> None:
+        for item in self.savings_tree.get_children():
+            self.savings_tree.delete(item)
+
+        try:
+            goals = (
+                self.savings_goal_service.get_all_goals()
+            )
+
+        except (
+            ValueError,
+            TypeError,
+            sqlite3.Error,
+        ) as error:
+            messagebox.showerror(
+                "Savings Goal Error",
+                str(error),
+            )
+            return
+
+        for goal in goals:
+            self.savings_tree.insert(
+                "",
+                "end",
+                iid=goal.id,
+                values=(
+                    goal.name,
+                    f"${goal.target_amount:.2f}",
+                    f"${goal.current_amount:.2f}",
+                    f"${goal.remaining_amount:.2f}",
+                    f"{goal.progress_percentage:.1f}%",
+                ),
             )
 
 
