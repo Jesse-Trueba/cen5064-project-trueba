@@ -10,6 +10,7 @@ class TransactionRepository:
         initialize_database(self.database_path)
 
     def save(self, transaction: Transaction) -> None:
+        # Store money as integer cents to avoid floating-point errors.
         amount_cents = int(transaction.amount * 100)
 
         with get_connection(self.database_path) as connection:
@@ -88,6 +89,21 @@ class TransactionRepository:
         transaction_id: str,
     ) -> None:
         with get_connection(self.database_path) as connection:
+            # Verify the transaction exists before attempting deletion.
+            existing = connection.execute(
+                """
+                SELECT id
+                FROM transactions
+                WHERE id = ?
+                """,
+                (transaction_id,),
+            ).fetchone()
+
+            if existing is None:
+                raise ValueError(
+                    f"Transaction not found: {transaction_id}"
+                )
+
             connection.execute(
                 """
                 DELETE FROM transactions
@@ -109,6 +125,33 @@ class TransactionRepository:
         )
 
         with get_connection(self.database_path) as connection:
+            # Check that every requested transaction exists first.
+            rows = connection.execute(
+                f"""
+                SELECT id
+                FROM transactions
+                WHERE id IN ({placeholders})
+                """,
+                transaction_ids,
+            ).fetchall()
+
+            existing_ids = {
+                row["id"]
+                for row in rows
+            }
+
+            missing_ids = [
+                transaction_id
+                for transaction_id in transaction_ids
+                if transaction_id not in existing_ids
+            ]
+
+            if missing_ids:
+                raise ValueError(
+                    "Transaction(s) not found: "
+                    + ", ".join(missing_ids)
+                )
+
             connection.execute(
                 f"""
                 DELETE FROM transactions
@@ -120,6 +163,7 @@ class TransactionRepository:
 
     @staticmethod
     def _row_to_transaction(row) -> Transaction:
+        # Convert stored cents back into Decimal dollars.
         return Transaction(
             id=row["id"],
             date=row["date"],
