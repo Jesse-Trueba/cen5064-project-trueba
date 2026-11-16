@@ -16,6 +16,7 @@ class SavingsGoalService:
         name: str,
         target_amount,
     ) -> SavingsGoal:
+        # Generate a unique ID so each goal can be persisted independently.
         goal = SavingsGoal(
             goal_id=str(uuid4()),
             name=name,
@@ -31,6 +32,7 @@ class SavingsGoalService:
         goal_id: str,
         amount,
     ) -> SavingsGoal:
+        # Retrieve the persisted goal before applying the Domain contribution rule.
         goal = self.repository.get_by_id(goal_id)
 
         if goal is None:

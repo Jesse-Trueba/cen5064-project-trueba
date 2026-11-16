@@ -114,3 +114,40 @@ def test_float_target_is_invalid():
             name="Vacation",
             target_amount=1000.50,
         )
+
+def test_null_name_is_invalid():
+    with pytest.raises(
+        ValueError,
+        match="Savings goal name cannot be empty",
+    ):
+        SavingsGoal(
+            goal_id="goal-1",
+            name=None,
+            target_amount="1000",
+        )
+
+
+def test_null_target_is_invalid():
+    with pytest.raises(
+        ValueError,
+        match="Savings amounts must be valid numbers",
+    ):
+        SavingsGoal(
+            goal_id="goal-1",
+            name="Vacation",
+            target_amount=None,
+        )
+
+
+def test_null_contribution_is_invalid():
+    goal = SavingsGoal(
+        goal_id="goal-1",
+        name="Vacation",
+        target_amount="1000",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Contribution must be a valid number",
+    ):
+        goal.add_contribution(None)

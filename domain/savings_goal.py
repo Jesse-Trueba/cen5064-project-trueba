@@ -15,6 +15,7 @@ class SavingsGoal:
         if not name or not name.strip():
             raise ValueError("Savings goal name cannot be empty.")
 
+        # Reject floating-point money values to avoid precision problems.
         if isinstance(target_amount, float):
             raise TypeError(
                 "Target amount must not use float."
@@ -25,6 +26,7 @@ class SavingsGoal:
                 "Current amount must not use float."
             )
 
+        # Convert user-provided money values into Decimal for exact calculations.
         try:
             target = Decimal(str(target_amount))
             current = Decimal(str(current_amount))
@@ -61,6 +63,7 @@ class SavingsGoal:
                 "Contribution must be a valid number."
             ) from error
 
+        # Contributions must always increase the amount saved.
         if contribution <= 0:
             raise ValueError(
                 "Contribution must be greater than zero."
@@ -69,6 +72,7 @@ class SavingsGoal:
         self.current_amount += contribution
 
     @property
+    # A completed goal should never display a negative remaining amount.
     def remaining_amount(self) -> Decimal:
         remaining = (
             self.target_amount
@@ -81,6 +85,7 @@ class SavingsGoal:
         return remaining
 
     @property
+    # Cap displayed progress at 100% even if the user saves beyond the target.
     def progress_percentage(self) -> Decimal:
         percentage = (
             self.current_amount
